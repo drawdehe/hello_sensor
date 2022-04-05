@@ -19,7 +19,7 @@
         app:layout_constraintVertical_bias="0.057" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/xTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="19dp"
@@ -33,28 +33,42 @@
         app:layout_constraintVertical_bias="0.033" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/yTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Y:"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.176"
+        app:layout_constraintHorizontal_bias="0.179"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        app:layout_constraintVertical_bias="0.045" />
+        app:layout_constraintTop_toBottomOf="@+id/xTextView"
+        app:layout_constraintVertical_bias="0.047" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/zTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="404dp"
         android:text="Z:"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.176"
+        app:layout_constraintHorizontal_bias="0.179"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
-        app:layout_constraintVertical_bias="0.056" />
+        app:layout_constraintTop_toBottomOf="@+id/yTextView"
+        app:layout_constraintVertical_bias="0.306" />
+
+    <TextView
+        android:id="@+id/tiltTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tilt"
+        android:textSize="28sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintVertical_bias="0.702" />
 </androidx.constraintlayout.widget.ConstraintLayout>
