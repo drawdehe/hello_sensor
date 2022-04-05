@@ -8,9 +8,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -36,7 +33,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_compass);
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         textView = findViewById(R.id.textViewDegrees);
-        //imageView = findViewById(R.id.imageViewCompass);
+        imageView = findViewById(R.id.imageViewCompass);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -74,18 +71,18 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     }
 
     // https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate-with-different-frequency
-    // Vibrate for 150 milliseconds
+    // Vibrate for 500 ms
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(150);
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(500);
         }
     }
 
     // https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
     private float[] applyLowPassFilter(float[] input, float[] output) {
-        if (output == null ){
+        if (output == null ) {
             return input;
         }
         for (int i=0; i<input.length; i++) {

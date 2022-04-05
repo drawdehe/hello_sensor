@@ -3,19 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".CompassActivity">
 
     <TextView
         android:id="@+id/textViewDegrees"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/compass_image"
-        android:text="Degrees"
+        android:text="TextView"
+        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.147" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintVertical_bias="0.061" />
 
+    <ImageView
+        android:id="@+id/imageViewCompass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/compass_image" />
+</androidx.constraintlayout.widget.ConstraintLayout>
