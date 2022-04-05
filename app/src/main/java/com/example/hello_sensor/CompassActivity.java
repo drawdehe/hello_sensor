@@ -11,9 +11,11 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 // check https://www.youtube.com/watch?v=IzzGVLnZBfQ&ab_channel=SarthiTechnology
 
@@ -29,6 +31,9 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private float[] orientationAngles = new float[3];
     private static final float ALPHA = 0.1f;
     private boolean entering = false;
+    private ConstraintLayout background;
+    private boolean colorSwitch = false;
+    private MediaPlayer mediaPlayer;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +44,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        background = (ConstraintLayout) findViewById(R.id.background);
+        mediaPlayer = MediaPlayer.create(this, R.raw.sound_2);
     }
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -64,6 +71,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         if (direction.equals("N")) {
             if (entering) {
                 vibrate();
+                changeColour();
+                playSound();
                 entering = false;
             }
         } else {
@@ -73,13 +82,26 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     }
 
     // https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate-with-different-frequency
-    // Vibrate for 500 ms
+    // Vibrate for 250 ms
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(500);
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(250);
         }
+    }
+
+    private void playSound() {
+        mediaPlayer.start();
+    }
+
+    private void changeColour() {
+        if (colorSwitch) {
+            background.setBackgroundColor(getResources().getColor(R.color.black));
+        } else {
+            background.setBackgroundColor(getResources().getColor(R.color.blue));
+        }
+        colorSwitch = !colorSwitch;
     }
 
     // https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
