@@ -53,9 +53,9 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
             return;
         }
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            lastAccelerometer = applyLowPassFilter(sensorEvent.values, lastAccelerometer);
+            lastAccelerometer = filter(sensorEvent.values, lastAccelerometer);
         } else if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            lastMagnetometer = applyLowPassFilter(sensorEvent.values, lastMagnetometer);
+            lastMagnetometer = filter(sensorEvent.values, lastMagnetometer);
         }
         updateOrientationAngles();
     }
@@ -104,15 +104,16 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         colorSwitch = !colorSwitch;
     }
 
-    // https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
-    private float[] applyLowPassFilter(float[] input, float[] output) {
-        if (output == null ) {
-            return input;
+    // taken from https://github.com/phishman3579/android-compass/blob/master/src/com/jwetherell/compass/common/LowPassFilter.java
+    private float[] filter(float[] input, float[] prev) {
+        if (input == null || prev == null)
+            throw new NullPointerException("input and prev float arrays must be non-NULL");
+        if (input.length != prev.length)
+            throw new IllegalArgumentException("input and prev must be the same length");
+        for (int i = 0; i < input.length; i++) {
+            prev[i] = prev[i] + ALPHA * (input[i] - prev[i]);
         }
-        for (int i=0; i<input.length; i++) {
-            output[i] = output[i] + ALPHA * (input[i] - output[i]);
-        }
-        return output;
+        return prev;
     }
 
     @Override
