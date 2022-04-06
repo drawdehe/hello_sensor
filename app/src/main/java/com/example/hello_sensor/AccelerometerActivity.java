@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class AccelerometerActivity extends AppCompatActivity implements SensorEventListener {
@@ -20,6 +21,9 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
     private TextView z;
     private TextView direction;
     private ConstraintLayout background;
+    private ImageView image;
+    private float xFerrari;
+    private float yFerrari;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,7 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         background = (ConstraintLayout) findViewById(R.id.background);
+        image = (ImageView) findViewById(R.id.ferrariImageView);
     }
 
     @Override
@@ -42,7 +47,8 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         z.setText("Z:   " + String.format("%.2f", lastAccelerometer[2]));
         setDirection(lastAccelerometer);
 
-
+        image.setX(xFerrari);
+        image.setY(yFerrari);
     }
 
     @Override
@@ -78,10 +84,12 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         if (lastAccelerometer[0] > 3) {
             direction.setText("LEFT");
             background.setBackgroundColor(getResources().getColor(R.color.teal_700));
+            xFerrari -= lastAccelerometer[0];
         }
         if (lastAccelerometer[1] > 3) {
             direction.setText("UP");
             background.setBackgroundColor(getResources().getColor(R.color.black));
+            yFerrari += lastAccelerometer[1];
         }
         if (lastAccelerometer[2] > 3) {
             direction.setText("FORWARD");
@@ -90,10 +98,12 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         if (lastAccelerometer[0] < -3) {
             direction.setText("RIGHT");
             background.setBackgroundColor(getResources().getColor(R.color.blue));
+            xFerrari -= lastAccelerometer[0];
         }
         if (lastAccelerometer[1] < -3) {
             direction.setText("UPSIDE DOWN");
-            background.setBackgroundColor(getResources().getColor(R.color.purple_500));
+            background.setBackgroundColor(getResources().getColor(R.color.purple_200));
+            yFerrari += lastAccelerometer[1];
         }
         if (lastAccelerometer[2]< -3) {
             direction.setText("BACKSIDE UP");
