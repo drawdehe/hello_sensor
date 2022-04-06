@@ -1,5 +1,6 @@
 package com.example.hello_sensor;
 
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,17 +10,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-// check https://www.youtube.com/watch?v=IzzGVLnZBfQ&ab_channel=SarthiTechnology
-
 public class CompassActivity extends AppCompatActivity implements SensorEventListener {
+
     private TextView textView;
     private ImageView imageView;
     private SensorManager sensorManager;
@@ -29,16 +26,16 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private float[] lastMagnetometer = new float[3];
     private float[] rotationMatrix = new float[9];
     private float[] orientationAngles = new float[3];
-    private static final float ALPHA = 0.1f;
-    private boolean entering = false;
+    private static final float ALPHA = 0.1f; // might change this value
+    private boolean switchInd = false;
     private ConstraintLayout background;
     private boolean colorSwitch = false;
     private MediaPlayer mediaPlayer;
 
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compass);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         textView = findViewById(R.id.textViewDegrees);
         imageView = findViewById(R.id.imageViewCompass);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -47,6 +44,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         background = (ConstraintLayout) findViewById(R.id.background);
         mediaPlayer = MediaPlayer.create(this, R.raw.sound_2);
     }
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         if (sensorEvent == null) {
@@ -64,31 +62,21 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private void updateOrientationAngles() {
         sensorManager.getRotationMatrix(rotationMatrix, null, lastAccelerometer, lastMagnetometer);
         float[] orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
-        double degrees = (Math.toDegrees((double)orientation[0]) + 360.0) % 360.0;
+        double degrees = (Math.toDegrees((double) orientation[0]) + 360.0) % 360.0;
         double angle = Math.round(degrees * 100) / 100;
         String direction = getDirection(degrees);
         textView.setText(angle + " degrees " + direction);
         if (direction.equals("N")) {
-            if (entering) {
+            if (switchInd) {
                 vibrate();
                 changeColour();
                 playSound();
-                entering = false;
+                switchInd = false;
             }
         } else {
-            entering = true;
+            switchInd = true;
         }
-        imageView.setRotation((float) angle * - 1);
-    }
-
-    // https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate-with-different-frequency
-    // Vibrate for 250 ms
-    private void vibrate() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(250);
-        }
+        imageView.setRotation((float) angle * -1);
     }
 
     private void playSound() {
@@ -104,7 +92,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         colorSwitch = !colorSwitch;
     }
 
-    // taken from https://github.com/phishman3579/android-compass/blob/master/src/com/jwetherell/compass/common/LowPassFilter.java
+    // https://github.com/phishman3579/android-compass/blob/master/src/com/jwetherell/compass/common/LowPassFilter.java
     private float[] filter(float[] input, float[] prev) {
         if (input == null || prev == null)
             throw new NullPointerException("input and prev float arrays must be non-NULL");
@@ -116,6 +104,18 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         return prev;
     }
 
+    // https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate-with-different-frequency
+    // vibrate for 250 ms
+    private void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(250, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            v.vibrate(250);
+        }
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
@@ -124,8 +124,8 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL); //maybe change to game
-        sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_NORMAL); //maybe change to game
+        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, magnetometerSensor, SensorManager.SENSOR_DELAY_GAME);
     }
 
     @Override
@@ -135,32 +135,32 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.unregisterListener(this, magnetometerSensor);
     }
 
-    // taken from https://www.raywenderlich.com/10838302-sensors-tutorial-for-android-getting-started
+    // https://www.raywenderlich.com/10838302-sensors-tutorial-for-android-getting-started
     private String getDirection(double angle) {
         String direction = "";
 
-        if (angle >= 350 || angle <= 10){
+        if (angle >= 345 || angle <= 15){
             direction = "N";
         }
-        if (angle < 350 && angle > 280) {
+        if (angle < 345 && angle > 285) {
             direction = "NW";
         }
-        if (angle <= 280 && angle > 260) {
+        if (angle <= 285 && angle > 265) {
             direction = "W";
         }
-        if (angle <= 260 && angle > 190) {
+        if (angle <= 265 && angle > 195) {
             direction = "SW";
         }
-        if (angle <= 190 && angle > 170) {
+        if (angle <= 195 && angle > 165) {
             direction = "S";
         }
-        if (angle <= 170 && angle > 100) {
+        if (angle <= 165 && angle > 105) {
             direction = "SE";
         }
-        if (angle <= 100 && angle > 80) {
+        if (angle <= 105 && angle > 75) {
             direction = "E";
         }
-        if (angle <= 80 && angle > 10) {
+        if (angle <= 75 && angle > 15) {
             direction = "NE";
         }
         return direction;
