@@ -3,11 +3,19 @@ package com.example.hello_sensor;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +29,7 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
     private TextView z;
     private TextView direction;
     private ConstraintLayout background;
+    private MediaPlayer mediaPlayer;
     private ImageView image;
     private float xFerrari;
     private float yFerrari;
@@ -37,6 +46,7 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         background = (ConstraintLayout) findViewById(R.id.background);
         image = (ImageView) findViewById(R.id.ferrariImageView);
+        mediaPlayer = MediaPlayer.create(this, R.raw.ferrari_sound);
     }
 
     @Override
@@ -47,6 +57,8 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         z.setText("Z:   " + String.format("%.2f", lastAccelerometer[2]));
         setDirection(lastAccelerometer);
 
+        xFerrari = image.getX();
+        yFerrari = image.getY();
         image.setX(xFerrari);
         image.setY(yFerrari);
     }
@@ -84,12 +96,10 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         if (lastAccelerometer[0] > 3) {
             direction.setText("LEFT");
             background.setBackgroundColor(getResources().getColor(R.color.teal_700));
-            xFerrari -= lastAccelerometer[0];
         }
         if (lastAccelerometer[1] > 3) {
             direction.setText("UP");
             background.setBackgroundColor(getResources().getColor(R.color.black));
-            yFerrari += lastAccelerometer[1];
         }
         if (lastAccelerometer[2] > 3) {
             direction.setText("FORWARD");
@@ -98,16 +108,29 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         if (lastAccelerometer[0] < -3) {
             direction.setText("RIGHT");
             background.setBackgroundColor(getResources().getColor(R.color.blue));
-            xFerrari -= lastAccelerometer[0];
         }
         if (lastAccelerometer[1] < -3) {
             direction.setText("UPSIDE DOWN");
             background.setBackgroundColor(getResources().getColor(R.color.purple_200));
-            yFerrari += lastAccelerometer[1];
+            vibrate();
+            image.animate().scaleY(2.5F).setDuration(1500);
+            image.animate().scaleX(2.5F).setDuration(1500);
         }
-        if (lastAccelerometer[2]< -3) {
+        if (lastAccelerometer[2] < -3) {
             direction.setText("BACKSIDE UP");
             background.setBackgroundColor(getResources().getColor(R.color.yellow));
+        }
+    }
+
+    // https://stackoverflow.com/questions/13950338/how-to-make-an-android-device-vibrate-with-different-frequency
+    // vibrate for 100 ms
+    private void vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            //deprecated in API 26
+            v.vibrate(100);
         }
     }
 }
