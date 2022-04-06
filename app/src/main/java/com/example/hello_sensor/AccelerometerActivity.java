@@ -1,6 +1,7 @@
 package com.example.hello_sensor;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -13,11 +14,12 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
     private SensorManager sensorManager;
     private Sensor accelerometerSensor;
     private float[] lastAccelerometer = new float[3];
-    private static final float ALPHA = 0.1f; // might change to 0.5f
+    private static final float ALPHA = 0.1f;
     private TextView x;
     private TextView y;
     private TextView z;
-    private TextView tilt;
+    private TextView direction;
+    private ConstraintLayout background;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,17 +28,21 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         x = findViewById(R.id.xTextView);
         y = findViewById(R.id.yTextView);
         z = findViewById(R.id.zTextView);
-        tilt = findViewById(R.id.tiltTextView);
+        direction = findViewById(R.id.tiltTextView);
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        background = (ConstraintLayout) findViewById(R.id.background);
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        lastAccelerometer = applyLowPassFilter(sensorEvent.values, lastAccelerometer);
+        lastAccelerometer = filter(sensorEvent.values, lastAccelerometer);
         x.setText("X:   " + String.format("%.2f", lastAccelerometer[0]));
         y.setText("Y:   " + String.format("%.2f", lastAccelerometer[1]));
         z.setText("Z:   " + String.format("%.2f", lastAccelerometer[2]));
+        setDirection(lastAccelerometer);
+
+
     }
 
     @Override
@@ -56,14 +62,42 @@ public class AccelerometerActivity extends AppCompatActivity implements SensorEv
         sensorManager.unregisterListener(this, accelerometerSensor);
     }
 
-    // https://stackoverflow.com/questions/27846604/how-to-get-smooth-orientation-data-in-android
-    private float[] applyLowPassFilter(float[] input, float[] output) {
-        if (output == null ) {
-            return input;
+    // https://github.com/phishman3579/android-compass/blob/master/src/com/jwetherell/compass/common/LowPassFilter.java
+    private float[] filter(float[] input, float[] prev) {
+        if (input == null || prev == null)
+            throw new NullPointerException("input and prev float arrays must be non-NULL");
+        if (input.length != prev.length)
+            throw new IllegalArgumentException("input and prev must be the same length");
+        for (int i = 0; i < input.length; i++) {
+            prev[i] = prev[i] + ALPHA * (input[i] - prev[i]);
         }
-        for (int i=0; i<input.length; i++) {
-            output[i] = output[i] + ALPHA * (input[i] - output[i]);
+        return prev;
+    }
+
+    private void setDirection(float[] lastAccelerometer) {
+        if (lastAccelerometer[0] > 3) {
+            direction.setText("LEFT");
+            background.setBackgroundColor(getResources().getColor(R.color.teal_700));
         }
-        return output;
+        if (lastAccelerometer[1] > 3) {
+            direction.setText("UP");
+            background.setBackgroundColor(getResources().getColor(R.color.black));
+        }
+        if (lastAccelerometer[2] > 3) {
+            direction.setText("FORWARD");
+            background.setBackgroundColor(getResources().getColor(R.color.green));
+        }
+        if (lastAccelerometer[0] < -3) {
+            direction.setText("RIGHT");
+            background.setBackgroundColor(getResources().getColor(R.color.blue));
+        }
+        if (lastAccelerometer[1] < -3) {
+            direction.setText("UPSIDE DOWN");
+            background.setBackgroundColor(getResources().getColor(R.color.purple_500));
+        }
+        if (lastAccelerometer[2]< -3) {
+            direction.setText("BACKSIDE UP");
+            background.setBackgroundColor(getResources().getColor(R.color.yellow));
+        }
     }
 }
