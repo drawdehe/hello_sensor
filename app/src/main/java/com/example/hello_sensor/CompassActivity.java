@@ -62,11 +62,11 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
     private void updateOrientationAngles() {
         sensorManager.getRotationMatrix(rotationMatrix, null, lastAccelerometer, lastMagnetometer);
         float[] orientation = SensorManager.getOrientation(rotationMatrix, orientationAngles);
-        double degrees = (Math.toDegrees((double) orientation[0]) + 360.0) % 360.0;
-        double angle = Math.round(degrees * 100) / 100;
-        String direction = getDirection(degrees);
-        textView.setText(angle + " degrees " + direction);
-        if (direction.equals("N")) {
+        double deg = (Math.toDegrees((double) orientation[0]) + 360.0) % 360.0;
+        double ang = Math.round(deg * 100) / 100;
+        String dir = getDirection(deg);
+        textView.setText(ang + " degrees " + dir);
+        if (dir.equals("N")) {
             if (switchInd) {
                 vibrate();
                 changeColour();
@@ -76,7 +76,7 @@ public class CompassActivity extends AppCompatActivity implements SensorEventLis
         } else {
             switchInd = true;
         }
-        imageView.setRotation((float) angle * -1);
+        imageView.setRotation((float) ang * -1);
     }
 
     private void playSound() {
